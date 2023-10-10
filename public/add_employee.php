@@ -1,3 +1,30 @@
+<?php
+    include 'database/db.php';
+
+    if(isset($_POST['save']) || isset($_POST['save_and_new'])){
+        $insert = "INSERT INTO employees (first_name, last_name, email, position, number, department) VALUES(?, ?, ?, ?, ?, ?)";
+
+        if($stmt = mysqli_prepare($con, $insert)){
+            $first_name = $_POST['first_name'];
+            $last_name = $_POST['last_name'];
+            $email = $_POST['email'];
+            $position = $_POST['job_position'];
+            $number = $_POST['phone'];
+            $department = $_POST['department'];
+
+            mysqli_stmt_bind_param($stmt, "ssssss", $first_name, $last_name, $email, $position, $number, $department);
+
+            if(mysqli_stmt_execute($stmt)){
+                header('location: add_employee.php');
+            } else {
+                echo 'Error: ' . mysqli_error($con);
+            }
+
+            mysqli_stmt_close($stmt);
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -38,7 +65,7 @@
             <div class="w-11/12 mx-auto">
                 <h1 class="text-lg font-semibold mb-5">Add New Employee</h1>
                 <div class="w-2/3">
-                    <form action="">
+                    <form action="" method="POST">
                         <div class="flex gap-4 mb-3">
                             <div class="w-2/4 flex flex-col gap-1">
                                 <label for="">First Name</label>
@@ -72,8 +99,8 @@
                             </div>
                         </div>
                         <div class="flex gap-3">
-                            <button class="w-1/4 bg-secondary py-2 rounded-3xl text-white text-sm">Save</button>
-                            <button class="w-1/4 bg-third py-2 rounded-3xl text-white text-sm">Save & Add New</button>
+                            <button name="save" class="w-1/4 bg-secondary py-2 rounded-3xl text-white text-sm">Save</button>
+                            <button name="save_and_new" class="w-1/4 bg-third py-2 rounded-3xl text-white text-sm">Save & Add New</button>
                             <button class="w-1/4 py-2 rounded-3xl border-2 text-sm">Cancel</button>
                         </div>
                     </form>
