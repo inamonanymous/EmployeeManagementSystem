@@ -66,13 +66,9 @@
                             </div>
                         </div>
                         <div class="flex gap-4 mb-5">
-                            <div class="w-2/4 flex flex-col gap-1">
+                            <div class="w-full flex flex-col gap-1">
                                 <label for="">Department</label>
                                 <input type="text" name="department" class="px-1 py-2">
-                            </div>
-                            <div class="w-2/4 flex flex-col gap-1">
-                                <label for="">Status</label>
-                                <input type="text" name="status" class="px-1 py-2">
                             </div>
                         </div>
                         <div class="flex gap-3">
