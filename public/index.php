@@ -31,7 +31,7 @@
                             </div>
                             <div class="flex flex-col mb-5">
                                 <label class="mb-1" for="">Password</label>
-                                <input class="w-full px-2 py-1 rounded-md border outline-none" type="text">
+                                <input class="w-full px-2 py-1 rounded-md border outline-none" type="password">
                             </div>
                             <div class="flex justify-between">
                                 <button class="w-1/3 px-4 py-2 bg-main rounded-3xl text-white">Login</button>
