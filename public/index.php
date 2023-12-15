@@ -1,3 +1,36 @@
+<?php
+session_start();
+include 'database/db.php';
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    $admin_name = $_POST["name"];
+    $password = $_POST["password"];
+
+    // Prepare a SQL statement to retrieve the admin's data
+    $sql = "SELECT id, name FROM admin WHERE name = ? AND password = ?";
+
+    if ($stmt = $con->prepare($sql)) {
+        $stmt->bind_param("ss", $admin_name, $password);
+        $stmt->execute();
+        $stmt->store_result();
+
+        if ($stmt->num_rows == 1) {
+            // Admin name and password match, log in the user and redirect to the dashboard
+            session_start();
+            $_SESSION["admin_name"] = $admin_name;
+            header("Location: dashboard.php");
+            exit();
+        } else {
+            // Admin name and/or password are incorrect
+            echo "Incorrect admin name and/or password. Please try again.";
+        }
+
+        $stmt->close();
+    }
+
+    $con->close();
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -24,14 +57,14 @@
                     <h1 class="text-xl font-semibold">Welcome back! </h1>
                     <p class="text-xs">Login to continue</p>
                     <div class="w-full mt-10">
-                        <form action="dashboard.php">
+                        <form action="" method="POST">
                             <div class="flex flex-col mb-3">
                                 <label class="mb-1" for="">Admin name</label>
-                                <input id="name" class="w-full px-2 py-1 rounded-md border outline-none" type="text">
+                                <input id="name" class="w-full px-2 py-1 rounded-md border outline-none" type="text" name="name">
                             </div>
                             <div class="flex flex-col mb-5">
                                 <label class="mb-1" for="">Password</label>
-                                <input class="w-full px-2 py-1 rounded-md border outline-none" type="password">
+                                <input class="w-full px-2 py-1 rounded-md border outline-none" type="password" name="password">
                             </div>
                             <div class="flex justify-between">
                                 <button class="w-1/3 px-4 py-2 bg-main rounded-3xl text-white">Login</button>

@@ -1,41 +1,27 @@
 <?php
+    session_start();
     include 'database/db.php';
-    
-    // Step 1: Retrieve the 'id' from the URL
-    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-    $lookUp = "SELECT * FROM employees WHERE id = " . $id;
-    $lookUpQuery = mysqli_query($con, $lookUp);
-    $row = mysqli_fetch_assoc($lookUpQuery);
-    
-    // Step 2: Sanitize and validate the 'id'
-    if ($id <= 0) {
-        // Handle invalid or missing 'id'
-        echo "Invalid 'id' parameter.";
-        exit();
+
+    if (isset($_SESSION["admin_name"])) {
+        $admin_name = $_SESSION["admin_name"];
     }
 
-    if(isset($_POST['update'])){
-        $update = "UPDATE employees SET first_name = ?, last_name = ?, email = ?, position = ?, number = ?, department = ? WHERE id = ?";
-    
-        if($stmt = mysqli_prepare($con, $update)){
-            $first_name = $_POST['first_name'];
-            $last_name = $_POST['last_name'];
-            $email = $_POST['email'];
-            $position = $_POST['job_position'];
-            $number = $_POST['phone'];
-            $department = $_POST['department'];
-    
-            mysqli_stmt_bind_param($stmt, "ssssssi", $first_name, $last_name, $email, $position, $number, $department, $id);
-    
-            if(mysqli_stmt_execute($stmt)){
-                header('location: edit.php?id=' . $id); // Redirect to the employee's edit page after updating.
-            } else {
-                echo 'Error: ' . mysqli_error($con);
-            }
-    
-            mysqli_stmt_close($stmt);
-        }
-    }
+// Step 1: Retrieve the 'id' from the URL
+$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
+// Step 2: Sanitize and validate the 'id'
+if ($id <= 0) {
+    // Handle invalid or missing 'id'
+    echo "Invalid 'id' parameter.";
+    exit();
+}
+
+$query = "SELECT * FROM employees WHERE id = " . $id;
+
+// Step 5: Execute the query
+$result = mysqli_query($con, $query);
+
+$row = mysqli_fetch_assoc($result);
 ?>
 
 <!DOCTYPE html>
@@ -54,12 +40,14 @@
     <div class="w-2/3 flex bg-white shadow-2xl rounded-lg">
         <div class=" w-[20%]">
             <div class="flex flex-col items-center py-5 mb-10">
-                <img src="" alt="" width="130" height="130" class="rounded-[50%] mb-2 bg-main">
+                <img src="../src/img/dp.jpg" alt="" width="130" height="130" class="rounded-[50%] mb-2 bg-main">
                 <div class="flex items-center gap-2">
-                    <p class="text-lg font-semibold">Martinez</p>
+                    <p class="text-lg font-semibold"><?php echo $admin_name ?></p>
+                    <button id="toggle" onclick="toggleLogout()">
                     <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 320 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"/></svg>
+                    </button>
                 </div>
-                
+                <button onclick="window.location.href='logout.php'" id="logout" class="w-2/4 bg-slate-500 text-white rounded-md text-sm py-1 hidden">Logout</button>   
             </div>
             <div class="flex flex-col mb-48">
                 <button onclick="window.location.href='dashboard.php'" class="w-full text-left flex items-center gap-2 hover:bg-main-2 hover:text-white px-4 py-3 transition-all"><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M543.8 287.6c17 0 32-14 32-32.1c1-9-3-17-11-24L512 185V64c0-17.7-14.3-32-32-32H448c-17.7 0-32 14.3-32 32v36.7L309.5 7c-6-5-14-7-21-7s-15 1-22 8L10 231.5c-7 7-10 15-10 24c0 18 14 32.1 32 32.1h32v69.7c-.1 .9-.1 1.8-.1 2.8V472c0 22.1 17.9 40 40 40h16c1.2 0 2.4-.1 3.6-.2c1.5 .1 3 .2 4.5 .2H160h24c22.1 0 40-17.9 40-40V448 384c0-17.7 14.3-32 32-32h64c17.7 0 32 14.3 32 32v64 24c0 22.1 17.9 40 40 40h24 32.5c1.4 0 2.8 0 4.2-.1c1.1 .1 2.2 .1 3.3 .1h16c22.1 0 40-17.9 40-40V455.8c.3-2.6 .5-5.3 .5-8.1l-.7-160.2h32z"/></svg><p>Home</p></button>
@@ -122,11 +110,6 @@
             </div>
         </div>
     </div>
-    <script>
-        function redirect(){
-            window.location.href = 'dashboard.php';
-            return false;
-        }
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
