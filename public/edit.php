@@ -1,27 +1,48 @@
 <?php
-    session_start();
     include 'database/db.php';
+    session_start();
 
     if (isset($_SESSION["admin_name"])) {
         $admin_name = $_SESSION["admin_name"];
     }
+    // Step 1: Retrieve the 'id' from the URL
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    $lookUp = "SELECT * FROM employees WHERE id = " . $id;
+    $lookUpQuery = mysqli_query($con, $lookUp);
+    $row = mysqli_fetch_assoc($lookUpQuery);
+    
+    // Step 2: Sanitize and validate the 'id'
+    if ($id <= 0) {
+        // Handle invalid or missing 'id'
+        echo "Invalid 'id' parameter.";
+        exit();
+    }
 
-// Step 1: Retrieve the 'id' from the URL
-$id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-
-// Step 2: Sanitize and validate the 'id'
-if ($id <= 0) {
-    // Handle invalid or missing 'id'
-    echo "Invalid 'id' parameter.";
-    exit();
-}
-
-$query = "SELECT * FROM employees WHERE id = " . $id;
-
-// Step 5: Execute the query
-$result = mysqli_query($con, $query);
-
-$row = mysqli_fetch_assoc($result);
+    if(isset($_POST['update'])){
+        $update = "UPDATE employees SET first_name = ?, last_name = ?, email = ?, position = ?, number = ?, department = ?, sss = ?, pagibig = ?, philhealth = ? WHERE id = ?";
+    
+        if($stmt = mysqli_prepare($con, $update)){
+            $first_name = $_POST['first_name'];
+            $last_name = $_POST['last_name'];
+            $email = $_POST['email'];
+            $position = $_POST['job_position'];
+            $number = $_POST['phone'];
+            $department = $_POST['department'];
+            $sss = $_POST['sss'];
+            $pagibig = $_POST['pagibig'];
+            $philhealth = $_POST['philhealth'];
+    
+            mysqli_stmt_bind_param($stmt, "sssssssssi", $first_name, $last_name, $email, $position, $number, $department, $sss, $pagibig, $philhealth, $id);
+    
+            if(mysqli_stmt_execute($stmt)){
+                header('location: edit.php?id=' . $id); // Redirect to the employee's edit page after updating.
+            } else {
+                echo 'Error: ' . mysqli_error($con);
+            }
+    
+            mysqli_stmt_close($stmt);
+        }
+    }
 ?>
 
 <!DOCTYPE html>
@@ -37,7 +58,7 @@ $row = mysqli_fetch_assoc($result);
     <title>Add Employee</title>
 </head>
 <body class="grid place-items-center min-h-screen bg-main-2">
-    <div class="w-2/3 flex bg-white shadow-2xl rounded-lg">
+    <div class="w-11/12 flex bg-white shadow-2xl rounded-lg">
         <div class=" w-[20%]">
             <div class="flex flex-col items-center py-5 mb-10">
                 <img src="../src/img/dp.jpg" alt="" width="130" height="130" class="rounded-[50%] mb-2 bg-main">
@@ -52,6 +73,7 @@ $row = mysqli_fetch_assoc($result);
             <div class="flex flex-col mb-48">
                 <button onclick="window.location.href='dashboard.php'" class="w-full text-left flex items-center gap-2 hover:bg-main-2 hover:text-white px-4 py-3 transition-all"><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 576 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M543.8 287.6c17 0 32-14 32-32.1c1-9-3-17-11-24L512 185V64c0-17.7-14.3-32-32-32H448c-17.7 0-32 14.3-32 32v36.7L309.5 7c-6-5-14-7-21-7s-15 1-22 8L10 231.5c-7 7-10 15-10 24c0 18 14 32.1 32 32.1h32v69.7c-.1 .9-.1 1.8-.1 2.8V472c0 22.1 17.9 40 40 40h16c1.2 0 2.4-.1 3.6-.2c1.5 .1 3 .2 4.5 .2H160h24c22.1 0 40-17.9 40-40V448 384c0-17.7 14.3-32 32-32h64c17.7 0 32 14.3 32 32v64 24c0 22.1 17.9 40 40 40h24 32.5c1.4 0 2.8 0 4.2-.1c1.1 .1 2.2 .1 3.3 .1h16c22.1 0 40-17.9 40-40V455.8c.3-2.6 .5-5.3 .5-8.1l-.7-160.2h32z"/></svg><p>Home</p></button>
                 <button class="w-full text-left flex items-center gap-2 hover:bg-main-2 hover:text-white px-4 py-3 transition-all"><svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M184 48H328c4.4 0 8 3.6 8 8V96H176V56c0-4.4 3.6-8 8-8zm-56 8V96H64C28.7 96 0 124.7 0 160v96H192 320 512V160c0-35.3-28.7-64-64-64H384V56c0-30.9-25.1-56-56-56H184c-30.9 0-56 25.1-56 56zM512 288H320v32c0 17.7-14.3 32-32 32H224c-17.7 0-32-14.3-32-32V288H0V416c0 35.3 28.7 64 64 64H448c35.3 0 64-28.7 64-64V288z"/></svg><p>Employees</p></button>
+                <button onclick="window.location.href='payroll.php'" class="w-full text-left flex items-center gap-2 hover:bg-main-2 hover:text-white px-4 py-3 transition-all"><svg xmlns="http://www.w3.org/2000/svg" height="16" width="18" viewBox="0 0 576 512"><!--!Font Awesome Free 6.5.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2023 Fonticons, Inc.--><path d="M64 64C28.7 64 0 92.7 0 128V384c0 35.3 28.7 64 64 64H512c35.3 0 64-28.7 64-64V128c0-35.3-28.7-64-64-64H64zm64 320H64V320c35.3 0 64 28.7 64 64zM64 192V128h64c0 35.3-28.7 64-64 64zM448 384c0-35.3 28.7-64 64-64v64H448zm64-192c-35.3 0-64-28.7-64-64h64v64zM288 160a96 96 0 1 1 0 192 96 96 0 1 1 0-192z"/></svg><p>Payroll</p></button>
             </div>
             <div class="px-4 py-6">
                 <p class=" text-sm">Need help?</p>
@@ -59,46 +81,71 @@ $row = mysqli_fetch_assoc($result);
             </div>
         </div>
         <div class="bg-slate-100 rounded-tr-lg rounded-br-lg w-[80%]">
-            <div class="bg-slate-200 flex items-center py-1 mb-10 rounded-tr-lg">
-                <svg xmlns="http://www.w3.org/2000/svg" height="1em" viewBox="0 0 512 512" style="fill: gray;" class="px-3"><!--! Font Awesome Free 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>
-                <input type="text" name="search" placeholder="Search" class="bg-slate-200 py-3 w-2/3 outline-none">
-            </div>
-            <div class="w-11/12 mx-auto">
+            <div class="w-11/12 mx-auto mt-10">
                 <h1 class="text-lg font-semibold mb-5">Update Employee Details</h1>
-                <div class="w-2/3">
+                <div class="w-full">
                     <form action="" method="POST">
-                        <div class="flex gap-4 mb-3">
-                            <div class="w-2/4 flex flex-col gap-1">
-                                <label for="">First Name</label>
-                                <input type="text" name="first_name" class="px-1 py-2" value="<?php echo $row['first_name']; ?>">
+                        <div class="w-full flex gap-5">
+                            <div class="w-2/3">
+                                <div class="flex gap-4 mb-3">
+                                    <div class="w-full flex flex-col gap-1">
+                                        <label for="">Department</label>
+                                        <input type="text" name="department" class="px-1 py-2" value="<?php echo $row['department']; ?>">
+                                    </div>
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Employee ID</label>
+                                        <input type="text" name="last_name" class="px-1 py-2" value="<?php echo $row['company_id']; ?>">
+                                    </div>
+                                </div>
+                                <div class="flex gap-4 mb-3">
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">First Name</label>
+                                        <input type="text" name="first_name" class="px-1 py-2" value="<?php echo $row['first_name']; ?>">
+                                    </div>
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Last Name</label>
+                                        <input type="text" name="last_name" class="px-1 py-2" value="<?php echo $row['last_name']; ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="w-full flex flex-col gap-1">
+                                        <label for="">Email Address</label>
+                                        <input type="email" name="email" class="px-1 py-2" value="<?php echo $row['email']; ?>">
+                                    </div>
+                                </div>
+                                <div class="flex gap-4 mb-3">
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Job Position</label>
+                                        <input type="text" name="job_position" class="px-1 py-2" value="<?php echo $row['position']; ?>">
+                                    </div>
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Mobile Number</label>
+                                        <input type="number" name="phone" class="px-1 py-2" value="<?php echo $row['number']; ?>">
+                                    </div>
+                                </div>
                             </div>
-                            <div class="w-2/4 flex flex-col gap-1">
-                                <label for="">Last Name</label>
-                                <input type="text" name="last_name" class="px-1 py-2" value="<?php echo $row['last_name']; ?>">
+                            <div class="w-2/6">
+                                <div class="mb-3">
+                                    <div class="w-full flex flex-col gap-1">
+                                        <label for="">SSS</label>
+                                        <input type="text" name="sss" class="px-1 py-2" value="<?php echo $row['sss'] ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="w-full flex flex-col gap-1">
+                                        <label for="">Pag-IBIG</label>
+                                        <input type="text" name="pagibig" class="px-1 py-2" value="<?php echo $row['pagibig'] ?>">
+                                    </div>
+                                </div>
+                                <div class="mb-3">
+                                    <div class="w-full flex flex-col gap-1">
+                                        <label for="">PhilHealth</label>
+                                        <input type="text" name="philhealth" class="px-1 py-2" value="<?php echo $row['philhealth'] ?>">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="mb-3">
-                            <div class="w-full flex flex-col gap-1">
-                                <label for="">Email Address</label>
-                                <input type="email" name="email" class="px-1 py-2" value="<?php echo $row['email']; ?>">
-                            </div>
-                        </div>
-                        <div class="flex gap-4 mb-3">
-                            <div class="w-2/4 flex flex-col gap-1">
-                                <label for="">Job Position</label>
-                                <input type="text" name="job_position" class="px-1 py-2" value="<?php echo $row['position']; ?>">
-                            </div>
-                            <div class="w-2/4 flex flex-col gap-1">
-                                <label for="">Mobile Number</label>
-                                <input type="number" name="phone" class="px-1 py-2" value="<?php echo $row['number']; ?>">
-                            </div>
-                        </div>
-                        <div class="flex gap-4 mb-5">
-                            <div class="w-full flex flex-col gap-1">
-                                <label for="">Department</label>
-                                <input type="text" name="department" class="px-1 py-2" value="<?php echo $row['department']; ?>">
-                            </div>
-                        </div>
+                        
                         <div class="flex gap-3">
                             <button name="update" class="w-1/4 bg-secondary py-2 rounded-3xl text-white text-sm">Update</button>
                             <button onclick="return redirect()" class="w-1/4 py-2 rounded-3xl border-2 text-sm">Cancel</button>

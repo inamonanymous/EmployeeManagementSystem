@@ -84,7 +84,7 @@
                         <tr class="bg-slate-200">
                             <form action="" method="GET">
                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                <td class="py-3"><?php echo $row['id'] ?></td>
+                                <td class="py-3"><?php echo $row['company_id'] ?></td>
                                 <td><?php echo $row['first_name'] ?></td>
                                 <td><?php echo $row['last_name'] ?></td>
                                 <td><?php echo $row['position'] ?></td>
