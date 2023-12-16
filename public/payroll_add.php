@@ -11,8 +11,25 @@
 
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if (isset($_POST['add'])) {
+            // Prepare and bind the SQL statement
+            $stmt = $con->prepare("INSERT INTO payroll (name, c_id, start_date, end_date, gross_pay, net_pay) VALUES (?, ?, ?, ?, ?, ?)");
+    
+            // Bind parameters to the statement
+            $stmt->bind_param("ssssdd", $name, $c_id, $start_date, $end_date, $gross_pay, $net_pay);
+    
+            // Set parameters
+            $name = $_POST['name'];
+            $c_id = $_POST['c_id'];
+            $start_date = $_POST['pay_start'];
+            $end_date = $_POST['pay_end'];
             $gross_pay = $_POST['gross_pay'];
-            echo $gross_pay;
+            $net_pay = $_POST['net_pay'];
+    
+            // Execute the statement
+            $stmt->execute();
+    
+            // Close the statement
+            $stmt->close();
         }
     }
 ?>
@@ -66,13 +83,21 @@
                                     <label for="" class="">Company ID</label>
                                     <input type="text" name="c_id" class="px-1 py-2 w-1/3">
                                 </div>
+                                <div>
+                                    <p class="text-center font-semibold">Pay period</p>
+                                    <div class="flex items-center gap-5 text-sm">
+                                        <input type="date" name="pay_start">
+                                        <p>To</p>
+                                        <input type="date" name="pay_end">
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="w-full flex gap-10 text-sm mb-10">
-                            <div class="w-1/2 p-2 rounded-sm shadow-xl bg-slate-100">
+                            <div class="w-1/2 px-2 py-4 rounded-sm shadow-xl bg-slate-200">
                                 <p class="font-semibold mb-5 text-center">Regular and Overtime pay</p>
                                 <div class="w-full flex gap-5">
-                                    <div class="w-2/6 flex flex-col items-end gap-3">
+                                    <div class="w-2/4 flex flex-col items-end gap-3">
                                         <label for="" class="py-1">Rate</label>
                                         <label for="" class="py-1">No. of days</label>
                                         <label for="" class="py-1">Overtime(Hours)</label>
@@ -80,46 +105,55 @@
                                         <label for="" class="py-1">Allowance</label>
                                         <label for="" class="py-1 font-medium">Gross pay</label>
                                     </div>
-                                    <div class="w-2/3 flex flex-col items-start gap-3">
-                                        <input id="rate" type="text" name="rate" class="px-1 py-1 w-3/4">
-                                        <input id="days" type="text" name="days" class="px-1 py-1 w-3/4">
-                                        <input id="ot" type="text" name="ot" class="px-1 py-1 w-3/4">
-                                        <input id="holidays" type="text" name="holidays" class="px-1 py-1 w-3/4">
-                                        <input id="allowance" type="text" name="allowance" class="px-1 py-1 w-3/4">
-                                        <input id="gross" type="text" name="gross_pay" class="px-1 py-1 w-3/4" readonly>
+                                    <div class="w-2/4 flex flex-col items-start gap-3">
+                                        <input id="rate" type="number" name="rate" class="px-1 py-1 w-2/4">
+                                        <input id="days" type="number" name="days" class="px-1 py-1 w-2/4">
+                                        <input id="ot" type="number" name="ot" class="px-1 py-1 w-2/4">
+                                        <input id="holidays" type="number" name="holidays" class="px-1 py-1 w-2/4">
+                                        <input id="allowance" type="number" name="allowance" class="px-1 py-1 w-2/4">
+                                        <input id="gross" type="number" name="gross_pay" class="px-1 py-1 w-2/4" readonly>
                                     </div>
                                 </div>
                             </div>
-                            <div class="w-1/2 p-2 rounded-sm shadow-xl bg-slate-100">
+                            <div class="w-1/2 p-2 rounded-sm shadow-xl bg-slate-200">
                                 <p class="font-semibold mb-5 text-center">Employee contributions</p>
                                 <div class="w-full flex gap-5">
-                                    <div class="w-2/6 flex flex-col items-end gap-3">
-                                        <label for="" class="py-1">SSS</label>
+                                    <div class="w-2/4 flex flex-col items-end gap-3">
+                                        <label for="" class="py-1">SSS Contribution</label>
                                         <label for="" class="py-1">SSS loan</label>
                                         <label for="" class="py-1">Pag-IBIG fund</label>
                                         <label for="" class="py-1">Pag-IBIG loan</label>
-                                        <label for="" class="py-1">PhilHealth</label>
+                                        <label for="" class="py-1">PhilHealth Contribution</label>
                                         <label for="" class="py-1">Deduction</label>
-                                        <label for="" class="py-1">Total deduction</label>
-                                        <label for="" class="py-1 font-medium">Net pay</label>
                                     </div>
-                                    <div class="w-2/3 flex flex-col items-start gap-3">
-                                        <input type="text" name="sss" class="px-1 py-1 w-3/4">
-                                        <input type="text" name="sss_loan" class="px-1 py-1 w-3/4">
-                                        <input type="text" name="pabibig_fund" class="px-1 py-1 w-3/4">
-                                        <input type="text" name="pabibig_loan" class="px-1 py-1 w-3/4">
-                                        <input type="text" name="philhealth" class="px-1 py-1 w-3/4">
-                                        <input type="text" name="deduction" class="px-1 py-1 w-3/4">
-                                        <input type="text" name="total_deduction" class="px-1 py-1 w-3/4" readonly>
-                                        <input type="text" name="net_pay" class="px-1 py-1 w-3/4" readonly>
+                                    <div class="w-2/4 flex flex-col items-start gap-3">
+                                        <input id="sss" type="number" name="sss" class="px-1 py-1 w-2/4">
+                                        <input id="sss_loan" type="number" name="sss_loan" class="px-1 py-1 w-2/4">
+                                        <input id="pagibig_fund" type="number" name="pabibig_fund" class="px-1 py-1 w-2/4">
+                                        <input id="pagibig_loan" type="number" name="pabibig_loan" class="px-1 py-1 w-2/4">
+                                        <input id="philhealth" type="number" name="philhealth" class="px-1 py-1 w-2/4">
+                                        <input id="deduction" type="number" name="deduction" class="px-1 py-1 w-2/4">
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="w-full flex items-center justify-end gap-10 mx-auto">
-                            <button name="add" class="px-6 py-1 border border-main-2 bg-main-2 text-white rounded-md">Add to payroll</button>
-                            <button type="button" onclick="compute()" class="border border-main-2 px-6 py-1 rounded-md">Compute</button>
-                            <button class="underline text-main-2">Clear</button>
+                        <div class="w-full flex items-center justify-between gap-10 mx-auto">
+                            <div>
+                                <div class="w-full flex gap-5">
+                                    <div class="w-2/6 flex flex-col items-end gap-3">
+                                        <label for="" class="py-1 font-medium">Net pay</label>
+                                    </div>
+                                    <div class="w-2/3 flex flex-col items-start gap-3">
+                                        <input id="net_pay" type="text" name="net_pay" class="px-1 py-1 w-3/4" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex gap-5">
+                                <button name="add" class="px-6 py-1 border border-main-2 bg-main-2 text-white rounded-md">Add to payroll</button>
+                                <button type="button" onclick="compute()" class="border border-main-2 px-6 py-1 rounded-md">Compute</button>
+                                <button class="underline text-main-2">Clear</button>
+                            </div>
+                            
                         </div>
                     </form>
                 </div>

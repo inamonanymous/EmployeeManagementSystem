@@ -6,7 +6,7 @@
         $admin_name = $_SESSION["admin_name"];
     }
 
-    $sql = "SELECT * FROM employees";
+    $sql = "SELECT * FROM payroll";
     $query = mysqli_query($con, $sql);
 
     if ($_SERVER['REQUEST_METHOD'] == 'GET') {
@@ -68,33 +68,60 @@
         <div class="bg-slate-100 rounded-tr-lg rounded-br-lg w-[80%]">
             <div class="w-11/12 mx-auto mt-10">
                 <h1 class="mb-4 text-lg font-semibold">Payroll</h1>
-                <button onclick="window.location.href='payroll_add.php'" class="px-6 py-1 bg-main-2 text-white">Add</button>
-                <button class="px-6 py-1 bg-main-2 text-white">Run Payroll</button>
-                <div class="mt-5">
+                <button onclick="window.location.href='payroll_add.php'" class="px-6 py-1 bg-main-2 text-white float-right mb-10">Add</button>
+                <div class=" clear-both">
                     <table class="w-full text-center">
                         <tr>
                             <th class="py-3">Pay Date</th>
-                            <th>Pay Period</th>
-                            <th>Gross</th>
-                            <th>Net</th>
+                            <th>Pay period</th>
+                            <th>Gross pay</th>
+                            <th>Net pay</th>
                             <th>Employee</th>
                             <th>Status</th>
                         </tr>
                         <?php
                             while($row = mysqli_fetch_assoc($query)){
+                            $gross = $row['gross_pay'];
+                            $net = $row['net_pay'];
 
+                            $grossString = (string) $gross;
+                            $netString = (string) $net;
                         ?>
                         <tr class="bg-slate-200">
                             <form action="" method="GET">
                             <input type="hidden" name="id" value="<?php echo $row['id']; ?>">
-                                <td class="py-3"></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
+                                <td class="py-3"><?php echo $row['end_date']; ?></td>
                                 <td>
-                                    
+                                    <?php
+                                        echo $row['start_date'] . " to " . $row['end_date']; 
+                                    ?>
                                 </td>
+                                <td><?php 
+                                if (strlen($grossString) == 4) {
+                                    // Add comma after the first number
+                                    $grossString = substr($grossString, 0, 1) . ',' . substr($grossString, 1);
+                                } elseif (strlen($grossString) == 5) {
+                                    // Add comma after the second number
+                                    $grossString = substr($grossString, 0, 2) . ',' . substr($grossString, 2);
+                                }
+
+                                echo $grossString;
+                                ?></td>
+                                <td><?php 
+                                
+                                if (strlen($netString) == 4) {
+                                    // Add comma after the first number
+                                    $netString = substr($netString, 0, 1) . ',' . substr($netString, 1);
+                                } elseif (strlen($netString) == 5) {
+                                    // Add comma after the second number
+                                    $netString = substr($netString, 0, 2) . ',' . substr($netString, 2);
+                                }
+
+                                echo $netString;
+                                
+                                ?></td>
+                                <td><?php echo $row['name']; ?></td>
+                                <td>Complete</td>
                             </form>
                         <?php
                             }
