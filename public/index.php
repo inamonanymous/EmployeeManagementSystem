@@ -3,21 +3,22 @@ session_start();
 include 'database/db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $admin_name = $_POST["name"];
+    $user_email = $_POST["email"];
     $password = $_POST["password"];
 
     // Prepare a SQL statement to retrieve the admin's data
-    $sql = "SELECT id, name FROM admin WHERE name = ? AND password = ?";
+    $sql = "SELECT id, name FROM users WHERE email = ? AND password = ?";
 
     if ($stmt = $con->prepare($sql)) {
-        $stmt->bind_param("ss", $admin_name, $password);
+        $stmt->bind_param("ss", $user_email, $password);
         $stmt->execute();
         $stmt->store_result();
-
+        
         if ($stmt->num_rows == 1) {
-            // Admin name and password match, log in the user and redirect to the dashboard
-            session_start();
-            $_SESSION["admin_name"] = $admin_name;
+            $stmt->bind_result($id, $user_name);
+            $stmt->fetch();
+            $_SESSION["user_name"] = $user_name;
+            $_SESSION["user_email"] = $user_email;
             header("Location: dashboard.php");
             exit();
         } else {
@@ -59,8 +60,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <div class="w-full mt-10">
                         <form action="" method="POST">
                             <div class="flex flex-col mb-3">
-                                <label class="mb-1" for="">Admin name</label>
-                                <input id="name" class="w-full px-2 py-1 rounded-md border outline-none" type="text" name="name">
+                                <label class="mb-1" for="">Email</label>
+                                <input id="email" class="w-full px-2 py-1 rounded-md border outline-none" type="email" name="email">
                             </div>
                             <div class="flex flex-col mb-5">
                                 <label class="mb-1" for="">Password</label>
@@ -68,7 +69,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             </div>
                             <div class="flex justify-between">
                                 <button class="w-1/3 px-4 py-2 bg-main rounded-3xl text-white">Login</button>
-                                <a href="#" class="text-blue-500">Forget password?</a>
                             </div>
                         </form>
                     </div>

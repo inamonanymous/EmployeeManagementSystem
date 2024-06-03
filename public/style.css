@@ -618,6 +618,16 @@ html {
 .flex {
   display: flex;
 }
+.bg-transparent {
+  background: transparent;
+  border: 1px grey solid;
+}
+input {
+  border-radius: 3px;
+}
+.wrap {
+  flex-wrap: wrap;
+}
 
 .table {
   display: table;
@@ -1053,4 +1063,11 @@ html {
 .hover\:text-white:hover {
   --tw-text-opacity: 1;
   color: rgb(255 255 255 / var(--tw-text-opacity));
+}
+
+.error-message {
+  color: red; 
+  background: white; 
+  padding: 5px; 
+  border-radius: 6px;
 }

@@ -1,53 +1,69 @@
 <?php
     include 'database/db.php';
-    include 'functions.php';
     session_start();
 
     if (isset($_SESSION["user_email"])) {
         $user_email = $_SESSION["user_email"];
         $user_name = $_SESSION["user_name"];
     }
-    // Step 1: Retrieve the 'id' from the URL
-    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
-    $lookUp = "SELECT * FROM employees WHERE id = " . $id;
-    $lookUpQuery = mysqli_query($con, $lookUp);
-    $row = mysqli_fetch_assoc($lookUpQuery);
+    include 'functions.php';
     
-    // Step 2: Sanitize and validate the 'id'
-    if ($id <= 0) {
-        // Handle invalid or missing 'id'
-        echo "Invalid 'id' parameter.";
-        exit();
-    }
+    $id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+    $lookUp = "SELECT * FROM attendance WHERE id = ?";
+    $stmt = mysqli_prepare($con, $lookUp);
+    mysqli_stmt_bind_param($stmt, "i", $id);
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $row = mysqli_fetch_assoc($result);
+
+    $lookUp2 = "SELECT * FROM employees WHERE company_id = ?";
+    $stmt2 = mysqli_prepare($con, $lookUp2);
+    mysqli_stmt_bind_param($stmt2, "i", $row["c_id"]);
+    mysqli_stmt_execute($stmt2);
+    $result2 = mysqli_stmt_get_result($stmt2);
+    $row2 = mysqli_fetch_assoc($result2);
+
     if(isset($_POST['cancel'])){
-        header("location: dashboard.php");
+        header("Location: attendance.php");
     }
+    
     if(isset($_POST['update'])){
-        $update = "UPDATE employees SET first_name = ?, last_name = ?, email = ?, position = ?, number = ?, department = ?, sss = ?, pagibig = ?, philhealth = ?, age = ?, sex = ?, address = ? ,rate_hour = ?, allowance = ? WHERE id = ?";
+        $update = "UPDATE attendance SET time_in = ?, time_out = ?, hours = ?, is_holiday = ?, is_paid = ?, is_late = ? WHERE id = ?";
     
         if($stmt = mysqli_prepare($con, $update)){
-            $first_name = $_POST['first_name'];
-            $last_name = $_POST['last_name'];
-            $email = $_POST['email'];
-            $position = $_POST['job_position'];
-            $number = $_POST['phone'];
-            $department = $_POST['department'];
-            $sss = $_POST['sss'];
-            $pagibig = $_POST['pagibig'];
-            $philhealth = $_POST['philhealth'];
-            $age = $_POST['age'];
-            $sex = $_POST['sex'];
-            $address = $_POST['address'];
-            $rate_hour = $_POST['rate_hour'];
-            $allowance = $_POST['allowance'];
+            $time_in = $_POST['time_in'];
+            $time_out = $_POST['time_out'];
+            $time_in = date('H:i', strtotime($_POST['time_in']));
+            $time_out = date('H:i', strtotime($_POST['time_out']));
+            echo "Time In uinput: " . $_POST['time_in'] . "<br>";
+            echo "Time Out: uinput" .   $_POST['time_out'] . "<br>";
     
-            mysqli_stmt_bind_param($stmt, "ssssssssssssssi", $first_name, $last_name, $email, $position, $number, $department, $sss, $pagibig, $philhealth, $age, $sex, $address,$rate_hour,$allowance, $id);
+
+            if ($time_in == $row['time_in']){
+                $time_in = $row['time_in'];
+                echo "timein true";
+            }
+            if ($time_out == $row['time_out']){
+                $time_out = $row['time_out'];
+                echo "timeout true";
+            }
+
+            echo "Time In: " . $time_in . "<br>";
+             echo "Time Out: " . $time_out . "<br>";
     
-            if(mysqli_stmt_execute($stmt)){
-                header('location: dashboard.php'); // Redirect to the employee's edit page after updating.
+
+            $hours = calculateTimeInterval($time_in, $time_out);
+            $is_holiday = $_POST['is_holiday'];
+            $is_paid = $_POST['is_paid'];
+            $is_late = $_POST['is_late'];
+            
+            mysqli_stmt_bind_param($stmt, "sssssss", $time_in, $time_out, $hours, $is_holiday, $is_paid, $is_late, $id);
+    
+             if(mysqli_stmt_execute($stmt)){
+                header('location: attendance.php'); // Redirect to the employee's edit page after updating.
             } else {
                 echo 'Error: ' . mysqli_error($con);
-            }
+            } 
     
             mysqli_stmt_close($stmt);
         }
@@ -98,97 +114,77 @@
                 <h1 class="text-lg font-semibold mb-5">Update Employee Details</h1>
                 <div class="w-full">
                     <form action="" method="POST">
-                        <div class="w-full flex gap-5">
+                        
                             <div class="w-2/3">
                                 <div class="flex gap-4 mb-3">
                                     <div class="w-full flex flex-col gap-1">
-                                        <label for="">Department</label>
-                                        <input type="text" name="department" class="px-1 py-2" value="<?php echo $row['department']; ?>">
-                                    </div>
-                                    <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Employee ID</label>
-                                        <input type="text" name="last_name" class="px-1 py-2" value="<?php echo $row['company_id']; ?>">
-                                    </div>
-                                </div>
-                                <div class="flex gap-4 mb-3">
-                                    <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">First Name</label>
-                                        <input type="text" name="first_name" class="px-1 py-2" value="<?php echo $row['first_name']; ?>">
-                                    </div>
-                                    <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Last Name</label>
-                                        <input type="text" name="last_name" class="px-1 py-2" value="<?php echo $row['last_name']; ?>">
+                                        <label for="">Time In</label>
+                                        <input type="time" name="time_in" class="px-1 py-2" value="<?php echo $row['time_in']; ?>">
+                                    
+                                    
+                                        <label for="">Time Out</label>
+                                        <input type="time" name="time_out" class="px-1 py-2" value="<?php echo $row['time_out']; ?>">
                                     </div>
                                 </div>
                                 <div class="flex gap-4 mb-3">
                                     <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Rate per Hour</label>
-                                        <input type="text" name="rate_hour" class="px-1 py-2" value="<?php echo $row['rate_hour']; ?>">
+                                        <label for="">Holiday</label>
+                                        <select type="text" name="is_holiday" class="px-1 py-2" value="<?php echo $row['is_holiday']; ?>">
+                                            <option selected value="<?php echo $row['is_holiday']; ?>">Default Value</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
                                     </div>
                                     <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Allowance per Day</label>
-                                        <input type="text" name="allowance" class="px-1 py-2" value="<?php echo $row['allowance']; ?>">
+                                        <label for="">Payment Status</label>
+                                        <select type="text" name="is_paid" class="px-1 py-2" value="<?php echo $row['is_paid']; ?>">
+                                            <option selected value="<?php echo $row['is_paid']; ?>">Default Value</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Late status</label>
+                                        <select type="text" name="is_late" class="px-1 py-2" value="<?php echo $row['is_late']; ?>">
+                                            <option selected value="<?php echo $row['is_late']; ?>">Default Value</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
                                     </div>
                                 </div>
                                 <div class="flex gap-4 mb-3">
                                     <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Age</label>
-                                        <input type="text" name="age" class="px-1 py-2" value="<?php echo $row['age']; ?>">
+                                        <label for="">First name</label>
+                                        <input type="text" disabled class="px-1 py-2" value="<?php echo $row2['first_name']; ?>">
                                     </div>
                                     <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Gender</label>
-                                        <input type="text" name="sex" class="px-1 py-2" value="<?php echo $row['sex']; ?>">
+                                        <label for="">Last name</label>
+                                        <input type="text" disabled class="px-1 py-2" value="<?php echo $row2['last_name']; ?>">
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="w-full flex flex-col gap-1">
-                                        <label for="">Address</label>
-                                        <input type="text" name="address" class="px-1 py-2" value="<?php echo $row['address']; ?>">
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Rate per hour</label>
+                                        <input type="text" disabled class="px-1 py-2" value="<?php echo $row2['rate_hour']; ?>">
                                     </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="w-full flex flex-col gap-1">
-                                        <label for="">Email Address</label>
-                                        <input type="email" name="email" class="px-1 py-2" value="<?php echo $row['email']; ?>">
+                                    
                                     </div>
-                                </div>
-                                <div class="flex gap-4 mb-3">
+                            </div>
+                            <div class="flex gap-4 mb-3">
+                            <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Allowance per day</label>
+                                        <input type="text" disabled class="px-1 py-2" value="<?php echo $row2['allowance']; ?>">
+                                    </div>
+                                
                                     <div class="w-2/4 flex flex-col gap-1">
                                         <label for="">Job Position</label>
-                                        <input type="text" name="job_position" class="px-1 py-2" value="<?php echo $row['position']; ?>">
-                                    </div>
-                                    <div class="w-2/4 flex flex-col gap-1">
-                                        <label for="">Mobile Number</label>
-                                        <input type="number" name="phone" class="px-1 py-2" value="<?php echo $row['number']; ?>">
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="w-2/6">
-                                <div class="mb-3">
-                                    <div class="w-full flex flex-col gap-1">
-                                        <label for="">SSS</label>
-                                        <input type="text" name="sss" class="px-1 py-2" value="<?php echo $row['sss'] ?>">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="w-full flex flex-col gap-1">
-                                        <label for="">Pag-IBIG</label>
-                                        <input type="text" name="pagibig" class="px-1 py-2" value="<?php echo $row['pagibig'] ?>">
-                                    </div>
-                                </div>
-                                <div class="mb-3">
-                                    <div class="w-full flex flex-col gap-1">
-                                        <label for="">PhilHealth</label>
-                                        <input type="text" name="philhealth" class="px-1 py-2" value="<?php echo $row['philhealth'] ?>">
-                                    </div>
-                                </div>
+                                        <input type="text" disabled class="px-1 py-2" value="<?php echo $row2['position']; ?>">
                             </div>
                         </div>
                         
-                        <div class="flex gap-3">
-                            <button name="update" class="w-1/4 bg-secondary py-2 rounded-3xl text-white text-sm">Update</button>
-                            <button name="cancel" class="w-1/4 py-2 rounded-3xl border-2 text-sm">Cancel</button>
-                        </div>
+                            <div class=" gap-3">
+                                <button name="update" class="w-1/4 bg-secondary py-2 rounded-3xl text-white text-sm">Update</button>
+                                <button name="cancel" class="w-1/4 py-2 rounded-3xl border-2 text-sm">Cancel</button>
+                            </div>
+                        
                     </form>
 
 
