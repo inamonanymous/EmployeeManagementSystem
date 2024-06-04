@@ -73,7 +73,8 @@
         <div class="bg-slate-100 rounded-tr-lg rounded-br-lg w-[80%]">
             <div class="w-11/12 mx-auto mt-10">
                 <h1 class="mb-4 text-lg font-semibold">Attendance List</h1>
-                <button onclick="window.location.href='attendance_add.php'" class="px-6 py-1 bg-main-2 text-white float-right mb-10">Add</button>
+                <button onclick="window.location.href='attendance_add_leave.php'" class="px-6 py-1 bg-main-2 text-white float-right mb-10" style="margin-left: 15px;">Add Sick\Vacation Leave</button>
+                <button onclick="window.location.href='attendance_add.php'" class="px-6 py-1 bg-main-2 text-white float-right mb-10">Add Attendance today</button>
                 <div>
                     <table class="w-full text-center">
                         <tr>

@@ -98,6 +98,10 @@
                                         <label for="">Late status</label>
                                         <input value="<?php echo ($row['is_late'] == 1) ? 'Late' : 'No'; ?>" />
                                     </div>
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Leave status</label>
+                                        <input value="<?php echo ($row['is_leave'] == 1) ? 'Leave' : 'No'; ?>" />
+                                    </div>
                                 </div>
                                 <div class="flex gap-4 mb-3">
                                     <div class="w-2/4 flex flex-col gap-1">

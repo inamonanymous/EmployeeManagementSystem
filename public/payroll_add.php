@@ -186,10 +186,7 @@
                                 <button name="add" class="px-6 py-1 border border-main-2 bg-main-2 text-white rounded-md">Add to payroll</button>
                             </div>    
                         </div>
-                        
-                    
-                    
-                        </div>
+
                         <div class="w-full flex items-center mx-auto wrap" style="justify-content: center;
                                                                                         background: rgba(0, 0, 0, 0.2);
                                                                                         gap: 5px;
@@ -197,8 +194,16 @@
                                                                                         border-radius: 6px;
                                                                                         margin-bottom: 10px;">
                                 <p class="font-semibold mb-5 text-center">Employee contributions</p>
-                                <div class="w-full flex gap-5">
-                                    <div class="w-2/4 flex flex-col items-end gap-3">
+                                <div class="w-full gap-5" style="
+                                                            height: 200px;
+                                                            overflow-y: auto; /* Add this line to enable vertical scrolling */
+                                                            position: scroll;
+                                                       ">
+                                    
+                                        <div class="w-full sm:w-1/2 flex flex-col gap-1 py-1">
+                                            <label for="deduction">Deduction (%)</label>
+                                            <input readonly id="deduction" type="number" name="deduction" class="px-1 py-1 w-full bg-transparent">
+                                        </div>
                                         <div class="w-full sm:w-1/2 flex flex-col gap-1 py-1">
                                             <label for="sss">SSS Contribution (%)</label>
                                             <input readonly id="sss" type="number" name="sss" class="px-1 py-1 w-full bg-transparent" required value="6">
@@ -208,8 +213,7 @@
                                             <input readonly id="sss_loan" type="number" name="sss_loan" class="px-1 py-1 w-full bg-transparent" required value="2">
                                         </div>
                                         
-                                    </div>
-                                    <div class="w-2/4 flex flex-col items-start gap-3">
+                                    
                                         <div class="w-full sm:w-1/2 flex flex-col gap-1 py-1">
                                             <label for="pagibig_fund">Pag-IBIG fund (%)</label>
                                             <input readonly id="pagibig_fund" type="number" name="pagibig_fund" class="px-1 py-1 w-full bg-transparent" required value="3">
@@ -219,17 +223,12 @@
                                             <input readonly id="pagibig_loan" type="number" name="pagibig_loan" class="px-1 py-1 w-full bg-transparent" required value="2">
                                         </div>
                                         
-                                    </div>
-                                    <div class="w-2/4 flex flex-col items-start gap-3">
+                                    
                                         <div class="w-full sm:w-1/2 flex flex-col gap-1 py-1">
                                             <label for="philhealth">PhilHealth Contribution (%)</label>
                                             <input readonly id="philhealth" type="number" name="philhealth" class="px-1 py-1 w-full bg-transparent" required value="7">
                                         </div>
-                                        <div class="w-full sm:w-1/2 flex flex-col gap-1 py-1">
-                                            <label for="deduction">Deduction (%)</label>
-                                            <input readonly id="deduction" type="number" name="deduction" class="px-1 py-1 w-full bg-transparent">
-                                        </div>
-                                    </div>
+                                    
                                 </div>
                             </div> 
                     </form>

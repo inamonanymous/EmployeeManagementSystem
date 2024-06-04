@@ -28,7 +28,7 @@
     }
     
     if(isset($_POST['update'])){
-        $update = "UPDATE attendance SET time_in = ?, time_out = ?, hours = ?, is_holiday = ?, is_paid = ?, is_late = ? WHERE id = ?";
+        $update = "UPDATE attendance SET time_in = ?, time_out = ?, hours = ?, is_holiday = ?, is_paid = ?, is_late = ?, is_leave = ? WHERE id = ?";
     
         if($stmt = mysqli_prepare($con, $update)){
             $time_in = $_POST['time_in'];
@@ -56,8 +56,9 @@
             $is_holiday = $_POST['is_holiday'];
             $is_paid = $_POST['is_paid'];
             $is_late = $_POST['is_late'];
+            $is_leave = $_POST['is_leave'];
             
-            mysqli_stmt_bind_param($stmt, "sssssss", $time_in, $time_out, $hours, $is_holiday, $is_paid, $is_late, $id);
+            mysqli_stmt_bind_param($stmt, "ssssssss", $time_in, $time_out, $hours, $is_holiday, $is_paid, $is_late, $id, $is_leave);
     
              if(mysqli_stmt_execute($stmt)){
                 header('location: attendance.php'); // Redirect to the employee's edit page after updating.
@@ -147,6 +148,14 @@
                                         <label for="">Late status</label>
                                         <select type="text" name="is_late" class="px-1 py-2" value="<?php echo $row['is_late']; ?>">
                                             <option selected value="<?php echo $row['is_late']; ?>">Default Value</option>
+                                            <option value="1">Yes</option>
+                                            <option value="0">No</option>
+                                        </select>
+                                    </div>
+                                    <div class="w-2/4 flex flex-col gap-1">
+                                        <label for="">Leave status</label>
+                                        <select type="text" name="is_leave" class="px-1 py-2" value="<?php echo $row['is_leave']; ?>">
+                                            <option selected value="<?php echo $row['is_leave']; ?>">Default Value</option>
                                             <option value="1">Yes</option>
                                             <option value="0">No</option>
                                         </select>
