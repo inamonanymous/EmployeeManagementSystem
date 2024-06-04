@@ -5,6 +5,8 @@ include 'database/db.php';
 if (isset($_SESSION["user_email"])) {
     $user_email = $_SESSION["user_email"];
     $user_name = $_SESSION["user_name"];
+} else {
+    header("location: index.php");
 }
 include 'functions.php';
 $sql = "SELECT * FROM employees";

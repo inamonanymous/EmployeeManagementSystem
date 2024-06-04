@@ -6,6 +6,8 @@
     if (isset($_SESSION["user_email"])) {
         $user_email = $_SESSION["user_email"];
         $user_name = $_SESSION["user_name"];
+    } else {
+        header("location: index.php");
     }
     // Step 1: Retrieve the 'id' from the URL
     $id = isset($_GET['id']) ? intval($_GET['id']) : 0;

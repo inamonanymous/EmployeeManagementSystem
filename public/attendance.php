@@ -5,6 +5,8 @@
     if (isset($_SESSION["user_email"])) {
         $user_email = $_SESSION["user_email"];
         $user_name = $_SESSION["user_name"];
+    } else {
+        header("location: index.php");
     }
 
     $sql = "SELECT * FROM attendance";
